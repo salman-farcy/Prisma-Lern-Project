@@ -6,8 +6,8 @@ import { prisma } from "./lib/prisma";
 
 const PORT = config.port;
 
-async function main(){
-     try{
+async function main() {
+     try {
           await prisma.$connect();
           console.log("Connected to the database successfully.");
 

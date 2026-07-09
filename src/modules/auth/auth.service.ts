@@ -7,7 +7,7 @@ import { jwtUtils } from "../../utils/jwt";
 
 
 
-export const loginUserDB = async (payload: ILoginUser) => {
+const loginUserDB = async (payload: ILoginUser) => {
      const { email, password } = payload;
      const user = await prisma.user.findUniqueOrThrow({
           where: { email }
@@ -42,6 +42,8 @@ export const loginUserDB = async (payload: ILoginUser) => {
           refreshToken
      };
 }
+
+
 
 export const authService = {
      loginUserDB

@@ -4,6 +4,8 @@ import express, { Application, Request, Response } from "express";
 import config from "./config";
 import { userRouter } from "./modules/user/user.route";
 import { authRouter } from "./modules/auth/auth.routes";
+import { postRouter } from "./modules/post/post.router";
+import { commentRouter } from "./modules/comment/comment.router";
 
 const app: Application = express();
 app.use(cors({
@@ -21,6 +23,8 @@ app.get("/", (req: Request, res: Response) => {
 
 app.use("/api/user", userRouter)
 app.use("/api/user", authRouter)
+app.use("/api/posts", postRouter)
+app.use("/api/comments", commentRouter)
 
 
 

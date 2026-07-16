@@ -33,7 +33,7 @@ const getAllPostsDB = async () =>{
 
 
 const getPostByIdDB = async (postId: string) =>{
-     
+
      const post = await prisma.post.findUniqueOrThrow({
           where: {
                id: postId
@@ -64,10 +64,39 @@ const getPostByIdDB = async (postId: string) =>{
 }
 
 
+const getMyPostsDB = async (authorId: string) =>{
+     const result = await prisma.post.findMany({
+          where: {
+               authorId
+          },
+
+          orderBy: {
+               createdAt: "desc"
+          },
+
+          include: {
+               author: {
+                    omit: {
+                         password: true
+                    }
+               },
+               _count: {
+                    select: {
+                         comments: true
+                    }
+               }
+          
+          }
+     });
+
+     return result
+}
+
 
 export const postServices = {
      createPostDB,
      getAllPostsDB,
-     getPostByIdDB
+     getPostByIdDB,
+     getMyPostsDB
 }
 

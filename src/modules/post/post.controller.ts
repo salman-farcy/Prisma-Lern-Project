@@ -40,8 +40,20 @@ const getPostStats = catchAsync(async (req: Request, res: Response, next: NextFu
 
 
 const getPostById = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+     const postId = req.params.postId;
 
+     if(!postId){
+          throw new Error("Post Id Required In Params")
+     }
 
+     const result = await postServices.getPostByIdDB(postId as string)
+
+     sendResponse(res, {
+          success: true,
+          statusCode: httpStatus.OK,
+          message: "Post retrieved successfully",
+          data: result
+     });
 });
 
 

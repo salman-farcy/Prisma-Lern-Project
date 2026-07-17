@@ -1,3 +1,4 @@
+import { CommentStatus } from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma"
 import { ICreatePostPayload, IUpdatePostPayload } from "./post.interface"
 
@@ -33,34 +34,96 @@ const getAllPostsDB = async () => {
 
 
 const getPostByIdDB = async (postId: string) => {
+     // await prisma.post.update({
+     //      where: {
+     //           id: postId
+     //      },
 
-     const post = await prisma.post.findUniqueOrThrow({
-          where: {
-               id: postId
-          }
-     });
+     //      data: {
+     //           views: {
+     //                increment: 1
+     //           }
+     //      },
+     // });
 
-     const updatedPost = await prisma.post.update({
-          where: {
-               id: postId
-          },
+     // const post = await prisma.post.findUniqueOrThrow({
+     //      where: {
+     //           id: postId
+     //      },
 
-          data: {
-               views: {
-                    increment: 1
-               }
-          },
+     //      include: {
+     //           author: {
+     //                omit: {
+     //                     password: true
+     //                }
+     //           },
+     //           comments: {
+     //                where: {
+     //                     status: CommentStatus.APPROVED
+     //                },
 
-          include: {
-               author: {
-                    omit: {
-                         password: true
+     //                orderBy: {
+     //                     createdAt: "desc"
+     //                }
+     //           },
+
+     //           _count: {
+     //                select: {
+     //                     comments: true
+     //                }
+     //           }
+     //      }
+     // })
+
+     // return post
+     const transactionResult = await prisma.$transaction(
+          async (tx) => {
+               await tx.post.update({
+                    where: {
+                         id: postId
+                    },
+
+                    data: {
+                         views: {
+                              increment: 1
+                         }
+                    },
+               });
+               
+               const post = await tx.post.findUniqueOrThrow({
+                    where: {
+                         id: postId
+                    },
+
+                    include: {
+                         author: {
+                              omit: {
+                                   password: true
+                              }
+                         },
+                         comments: {
+                              where: {
+                                   status: CommentStatus.APPROVED
+                              },
+
+                              orderBy: {
+                                   createdAt: "desc"
+                              }
+                         },
+
+                         _count: {
+                              select: {
+                                   comments: true
+                              }
+                         }
                     }
-               },
-               comments: true
+               });
+
+               return post
           }
-     })
-     return updatedPost
+     );
+
+     return transactionResult;
 }
 
 

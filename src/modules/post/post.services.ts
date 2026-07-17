@@ -4,17 +4,17 @@ import { ICreatePostPayload, IUpdatePostPayload } from "./post.interface"
 
 
 const createPostDB = async (payload: ICreatePostPayload, userId: string) => {
-      const result = await  prisma.post.create({
+     const result = await prisma.post.create({
           data: {
                ...payload,
                authorId: userId
           }
-      });
-      return result;
+     });
+     return result;
 }
 
 
-const getAllPostsDB = async () =>{
+const getAllPostsDB = async () => {
      const posts = await prisma.post.findMany(
           {
                include: {
@@ -25,14 +25,14 @@ const getAllPostsDB = async () =>{
                     },
                     comments: true
                },
-               
+
           }
      );
      return posts
 }
 
 
-const getPostByIdDB = async (postId: string) =>{
+const getPostByIdDB = async (postId: string) => {
 
      const post = await prisma.post.findUniqueOrThrow({
           where: {
@@ -47,7 +47,7 @@ const getPostByIdDB = async (postId: string) =>{
 
           data: {
                views: {
-                    increment : 1
+                    increment: 1
                }
           },
 
@@ -64,7 +64,7 @@ const getPostByIdDB = async (postId: string) =>{
 }
 
 
-const getMyPostsDB = async (authorId: string) =>{
+const getMyPostsDB = async (authorId: string) => {
      const result = await prisma.post.findMany({
           where: {
                authorId
@@ -85,7 +85,7 @@ const getMyPostsDB = async (authorId: string) =>{
                          comments: true
                     }
                }
-          
+
           }
      });
 
@@ -93,14 +93,14 @@ const getMyPostsDB = async (authorId: string) =>{
 }
 
 
-const updatePostDB = async (postId: string, payload: IUpdatePostPayload, authorId : string, isAdmin: boolean) => {
+const updatePostDB = async (postId: string, payload: IUpdatePostPayload, authorId: string, isAdmin: boolean) => {
      const post = await prisma.post.findUniqueOrThrow({
           where: {
                id: postId
           }
      });
 
-     if(!isAdmin && post.authorId !== authorId){
+     if (!isAdmin && post.authorId !== authorId) {
           throw new Error("You are not the woner of this post!")
      };
 
@@ -123,11 +123,35 @@ const updatePostDB = async (postId: string, payload: IUpdatePostPayload, authorI
 }
 
 
+const deletePost = async (postId: string, authorId: string, isAdmin: any) => {
+     const post = await prisma.post.findUnique({
+          where: {
+               id: postId
+          }
+     });
+
+     if (!post) {
+          throw new Error("Post not found");
+     }
+
+     if (!isAdmin && post.authorId !== authorId) {
+          throw new Error("You are not the owner of this post!");
+     }
+
+     await prisma.post.delete({
+          where: {
+               id: postId
+          }
+     });
+}
+
+
 export const postServices = {
      createPostDB,
      getAllPostsDB,
      getPostByIdDB,
      getMyPostsDB,
-     updatePostDB
+     updatePostDB,
+     deletePost
 }
 

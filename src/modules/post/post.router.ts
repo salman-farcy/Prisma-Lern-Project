@@ -16,7 +16,7 @@ router.get("/my-posts", auth(Role.USER, Role.ADMIN, Role.AUTHOR), postController
 
 router.get("/:postId", postController.getPostById);
 
-router.patch("/:postId", auth(Role.USER, Role.ADMIN, Role.AUTHOR), postController.upDatePost);
+router.patch("/:postId", auth(Role.USER, Role.ADMIN), postController.upDatePost);
 
 router.delete("/:postId", auth(Role.USER, Role.ADMIN, Role.AUTHOR), postController.deletePost);
 

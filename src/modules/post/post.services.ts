@@ -1,5 +1,5 @@
 import { prisma } from "../../lib/prisma"
-import { ICreatePostPayload } from "./post.interface"
+import { ICreatePostPayload, IUpdatePostPayload } from "./post.interface"
 
 
 
@@ -93,10 +93,41 @@ const getMyPostsDB = async (authorId: string) =>{
 }
 
 
+const updatePostDB = async (postId: string, payload: IUpdatePostPayload, authorId : string, isAdmin: boolean) => {
+     const post = await prisma.post.findUniqueOrThrow({
+          where: {
+               id: postId
+          }
+     });
+
+     if(!isAdmin && post.authorId !== authorId){
+          throw new Error("You are not the woner of this post!")
+     };
+
+     const result = await prisma.post.update({
+          where: {
+               id: postId
+          },
+          data: payload,
+          include: {
+               author: {
+                    omit: {
+                         password: true
+                    }
+               },
+               comments: true
+          }
+     });
+
+     return result;
+}
+
+
 export const postServices = {
      createPostDB,
      getAllPostsDB,
      getPostByIdDB,
-     getMyPostsDB
+     getMyPostsDB,
+     updatePostDB
 }
 

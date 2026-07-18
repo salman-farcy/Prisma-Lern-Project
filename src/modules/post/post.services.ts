@@ -1,4 +1,4 @@
-import { CommentStatus } from "../../../generated/prisma/enums";
+import { CommentStatus, PostStatus } from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma"
 import { ICreatePostPayload, IUpdatePostPayload } from "./post.interface"
 
@@ -30,6 +30,72 @@ const getAllPostsDB = async () => {
           }
      );
      return posts
+}
+
+
+const getPostStats = async () => {
+     const transactionResult = await prisma.$transaction(
+          async (tx) => {
+               const totalPosts = tx.post.count();
+
+               const totalPublishedPosts = await tx.post.count({
+                    where: {
+                         status: PostStatus.PUBLISHE
+                    }
+               });
+
+               const totalDraftPosts = await tx.post.count({
+                    where: {
+                         status: PostStatus.DRAFT
+                    }
+               });
+
+               const totalArchivedPosts = await tx.post.count({
+                    where: {
+                         status: PostStatus.ARCHIVED
+                    }
+               });
+
+               const totalComments = await tx.comment.count({
+                    where: {
+                         status: CommentStatus.APPROVED
+                    }
+               });
+
+               const totalApprovedComments = await tx.comment.count({
+                    where: {
+                         status: CommentStatus.APPROVED
+                    }
+               });
+
+               const totalRejectedComments = await tx.comment.count({
+                    where: {
+                         status: CommentStatus.REJECT
+                    }
+               });
+
+               // Not a good approch
+               const allPosts = await tx.post.findMany();
+               let totalPostViews = 0;
+               allPosts.forEach(post => {
+                    totalPostViews = totalPostViews + post.views
+               });
+
+               return {
+                    totalPosts,
+                    totalPublishedPosts,
+                    totalDraftPosts,
+                    totalArchivedPosts,
+                    totalComments,
+                    totalApprovedComments,
+                    totalRejectedComments,
+                    totalPostViews
+               }
+
+          }
+     );
+
+     return transactionResult;
 }
 
 
@@ -215,6 +281,7 @@ export const postServices = {
      getPostByIdDB,
      getMyPostsDB,
      updatePostDB,
-     deletePost
+     deletePost,
+     getPostStats
 }
 

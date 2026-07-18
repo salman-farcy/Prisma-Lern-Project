@@ -36,7 +36,7 @@ const getAllPostsDB = async () => {
 const getPostStats = async () => {
      const transactionResult = await prisma.$transaction(
           async (tx) => {
-               const totalPosts = tx.post.count();
+               const totalPosts = await tx.post.count();
 
                const totalPublishedPosts = await tx.post.count({
                     where: {
@@ -74,12 +74,13 @@ const getPostStats = async () => {
                     }
                });
 
-               // Not a good approch
-               const allPosts = await tx.post.findMany();
-               let totalPostViews = 0;
-               allPosts.forEach(post => {
-                    totalPostViews = totalPostViews + post.views
-               });
+               const totalPostViewsAggregate = await tx.post.aggregate({
+                    _sum: {
+                         views: true
+                    }
+               })
+
+               const totalPostViews = totalPostViewsAggregate._sum.views;
 
                return {
                     totalPosts,

@@ -145,11 +145,22 @@ const getPostStats = async () => {
                     })
                ]);
 
+               return {
+                    totalPosts,
+                    totalPublishedPosts,
+                    totalDraftPosts,
+                    totalArchivedPosts,
+                    totalComments,
+                    totalApprovedComments,
+                    totalRejectedComments,
+                    totalPostViews
+               }
 
-          }
+          } 
+          
      );
 
-return transactionResult;
+     return transactionResult;
 }
 
 

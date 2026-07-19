@@ -1,3 +1,4 @@
+import { Prisma } from "../../../generated/prisma/browser";
 import { CommentStatus, PostStatus } from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma"
 import { ICreatePostPayload, IUpdatePostPayload } from "./post.interface"
@@ -36,67 +37,119 @@ const getAllPostsDB = async () => {
 const getPostStats = async () => {
      const transactionResult = await prisma.$transaction(
           async (tx) => {
-               const totalPosts = await tx.post.count();
+               // const totalPosts = await tx.post.count();
 
-               const totalPublishedPosts = await tx.post.count({
-                    where: {
-                         status: PostStatus.PUBLISHE
-                    }
-               });
+               // const totalPublishedPosts = await tx.post.count({
+               //      where: {
+               //           status: PostStatus.PUBLISHE
+               //      }
+               // });
 
-               const totalDraftPosts = await tx.post.count({
-                    where: {
-                         status: PostStatus.DRAFT
-                    }
-               });
+               // const totalDraftPosts = await tx.post.count({
+               //      where: {
+               //           status: PostStatus.DRAFT
+               //      }
+               // });
 
-               const totalArchivedPosts = await tx.post.count({
-                    where: {
-                         status: PostStatus.ARCHIVED
-                    }
-               });
+               // const totalArchivedPosts = await tx.post.count({
+               //      where: {
+               //           status: PostStatus.ARCHIVED
+               //      }
+               // });
 
-               const totalComments = await tx.comment.count({
-                    where: {
-                         status: CommentStatus.APPROVED
-                    }
-               });
+               // const totalComments = await tx.comment.count({
+               //      where: {
+               //           status: CommentStatus.APPROVED
+               //      }
+               // });
 
-               const totalApprovedComments = await tx.comment.count({
-                    where: {
-                         status: CommentStatus.APPROVED
-                    }
-               });
+               // const totalApprovedComments = await tx.comment.count({
+               //      where: {
+               //           status: CommentStatus.APPROVED
+               //      }
+               // });
 
-               const totalRejectedComments = await tx.comment.count({
-                    where: {
-                         status: CommentStatus.REJECT
-                    }
-               });
+               // const totalRejectedComments = await tx.comment.count({
+               //      where: {
+               //           status: CommentStatus.REJECT
+               //      }
+               // });
 
-               const totalPostViewsAggregate = await tx.post.aggregate({
-                    _sum: {
-                         views: true
-                    }
-               })
+               // const totalPostViewsAggregate = await tx.post.aggregate({
+               //      _sum: {
+               //           views: true
+               //      }
+               // })
 
-               const totalPostViews = totalPostViewsAggregate._sum.views;
+               // const totalPostViews = totalPostViewsAggregate._sum.views;
 
-               return {
-                    totalPosts,
-                    totalPublishedPosts,
-                    totalDraftPosts,
-                    totalArchivedPosts,
-                    totalComments,
-                    totalApprovedComments,
-                    totalRejectedComments,
-                    totalPostViews
-               }
+               // return {
+               //      totalPosts,
+               //      totalPublishedPosts,
+               //      totalDraftPosts,
+               //      totalArchivedPosts,
+               //      totalComments,
+               //      totalApprovedComments,
+               //      totalRejectedComments,
+               //      totalPostViews
+               // }
+
+               const [
+                         totalPosts,
+                         totalPublishedPosts,
+                         totalDraftPosts,
+                         totalArchivedPosts,
+                         totalComments,
+                         totalApprovedComments,
+                         totalRejectedComments,
+                         totalPostViews
+                    ] = await Promise.all([
+                    await tx.post.count(),
+
+                    await tx.post.count({
+                         where: {
+                              status: PostStatus.PUBLISHE
+                         }
+                    }),
+
+                    await tx.post.count({
+                         where: {
+                              status: PostStatus.DRAFT
+                         }
+                    }),
+
+                    await tx.post.count({
+                         where: {
+                              status: PostStatus.ARCHIVED
+                         }
+                    }),
+
+                    await tx.comment.count(),
+
+                    await tx.comment.count({
+                         where: {
+                              status: CommentStatus.APPROVED
+                         }
+                    }),
+
+                    await tx.comment.count({
+                         where: {
+                              status: CommentStatus.REJECT
+                         }
+                    }),
+
+                    await tx.post.aggregate({
+                         _sum: {
+                              views: true
+                         }
+                    })
+               ]);
+
 
           }
      );
 
-     return transactionResult;
+return transactionResult;
 }
 
 
@@ -156,7 +209,7 @@ const getPostByIdDB = async (postId: string) => {
                          }
                     },
                });
-               
+
                const post = await tx.post.findUniqueOrThrow({
                     where: {
                          id: postId

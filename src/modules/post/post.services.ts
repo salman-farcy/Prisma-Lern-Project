@@ -1,4 +1,3 @@
-import { Prisma } from "../../../generated/prisma/browser";
 import { CommentStatus, PostStatus } from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma"
 import { ICreatePostPayload, IUpdatePostPayload } from "./post.interface"
@@ -19,6 +18,104 @@ const createPostDB = async (payload: ICreatePostPayload, userId: string) => {
 const getAllPostsDB = async () => {
      const posts = await prisma.post.findMany(
           {
+               //* filtering / Exact match without AND Oprator
+               // where: {
+               //      title: "salman farcy new Post",
+               //      content: "sikha kathamo nia onack kz kora dorkar"
+               // },
+
+               //* filtering / Exact match With AND Oprator 
+               // where: {
+               //      AND: [
+               //           {
+               //                title: "salman farcy new Post"
+               //           },
+               //           {
+               //                content: "sikha kathamo nia onack kz kora dorkar"
+               //           },
+               //           {
+               //                tags: {
+               //                     equals: [
+               //                          "Typescript",
+               //                          "prisma",
+               //                          "express"
+               //                     ]
+               //                }
+               //           }
+               //      ]
+               // },
+
+               //* Searching / Partial match
+               // where: {
+               //      title: {
+               //           contains: "JoR",
+               //           mode: "insensitive"
+               //      },
+
+               //      content: "ai jor tufan ar modhe exm nao ta akdome thik hoy nay "
+               // },
+
+               // searchin / partial search with OR oprator
+               // where: {
+               //      OR: [
+               //           {
+               //                title: {
+               //                     contains: "2025",
+               //                     mode: "insensitive"
+               //                }
+               //           },
+               //           {
+               //                content: {
+               //                     contains: "sikha kathamo",
+               //                     mode: "insensitive" 
+               //                }
+               //           }
+               //      ]
+               // },
+
+               // where: {
+               //      //* filtering & searching
+               //      AND: [
+               //           {
+               //                //? searching
+               //                OR: [
+               //                     {
+               //                          title: {
+               //                               contains: "2025",
+               //                               mode: "insensitive"
+               //                          }
+               //                     },
+               //                     {
+               //                          content: {
+               //                               contains: "sikha",
+               //                               mode: "insensitive"
+               //                          }
+               //                     }
+               //                ]
+               //           },
+
+               //           //* filtering
+               //           {
+               //                title: "2025"
+               //           },
+
+               //           {
+               //                content: "sikha"
+               //           }
+               //      ]
+               // },
+                 
+               //*pagination
+               // take: 1,
+               // skip: 3,
+
+               // * Sorting / OrderBy
+               orderBy: {
+                    createdAt: "desc",
+                    title: "asc",
+                    content: "desc"
+               },
+
                include: {
                     author: {
                          omit: {
@@ -95,15 +192,15 @@ const getPostStats = async () => {
                // }
 
                const [
-                         totalPosts,
-                         totalPublishedPosts,
-                         totalDraftPosts,
-                         totalArchivedPosts,
-                         totalComments,
-                         totalApprovedComments,
-                         totalRejectedComments,
-                         totalPostViews
-                    ] = await Promise.all([
+                    totalPosts,
+                    totalPublishedPosts,
+                    totalDraftPosts,
+                    totalArchivedPosts,
+                    totalComments,
+                    totalApprovedComments,
+                    totalRejectedComments,
+                    totalPostViews
+               ] = await Promise.all([
                     await tx.post.count(),
 
                     await tx.post.count({
@@ -156,8 +253,8 @@ const getPostStats = async () => {
                     totalPostViews
                }
 
-          } 
-          
+          }
+
      );
 
      return transactionResult;

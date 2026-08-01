@@ -1,4 +1,4 @@
-import  httpStatus  from 'http-status';
+import httpStatus from 'http-status';
 import { NextFunction, Request, Response } from "express";
 import { catchAsync } from "../../utils/catchAsync";
 import { postServices } from "./post.services";
@@ -16,19 +16,19 @@ const createPost = catchAsync(async (req: Request, res: Response, next: NextFunc
           success: true,
           statusCode: httpStatus.CREATED,
           message: "Post Created Successfully",
-          data: postResult 
+          data: postResult
      })
 });
 
 
 const getAllPosts = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
      const result = await postServices.getAllPostsDB();
-     
+
      sendResponse(res, {
           success: true,
           statusCode: httpStatus.OK,
           message: "Post Retrieved Successfully",
-          data: result 
+          data: result
      })
 
 });
@@ -63,7 +63,7 @@ const getMyPosts = catchAsync(async (req: Request, res: Response, next: NextFunc
 const getPostById = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
      const postId = req.params.postId;
 
-     if(!postId){
+     if (!postId) {
           throw new Error("Post Id Required In Params")
      }
 
@@ -99,14 +99,14 @@ const deletePost = catchAsync(async (req: Request, res: Response, next: NextFunc
      const authorId = req.user?.id;
      const isAdmin = req.user?.role === "ADMIN";
 
-     if(!postId){
+     if (!postId) {
           throw new Error("Post Id Required In Params")
      }
 
      await postServices.deletePost(postId as string, authorId as string, isAdmin);
 
      sendResponse(res, {
-          success: true, 
+          success: true,
           statusCode: httpStatus.OK,
           message: "Post delete successfully",
           data: null

@@ -22,6 +22,9 @@ const getAllPostsDB = async (query : IPostQuery) => {
      const page = query.page ? Number(query.page) : 1;
      const skip = (page - 1) * limit;
 
+     const sortBy = query.soryBy ? query.soryBy : "createdAt";
+     const sortOrder = query.sortOrder ? query.sortOrder : "desc";
+
      const posts = await prisma.post.findMany(
           {
                //* filtering / Exact match without AND Oprator
@@ -139,15 +142,16 @@ const getAllPostsDB = async (query : IPostQuery) => {
                                              content : {
                                                   contains: query.searchTerm,
                                                   mode: "insensitive"
-                                             }
-                                        }
+                                             },
+                                        },
                                    ]
                          } : {},
 
 
                          //title filtering
                          query.title ? {
-                                   title: query.title
+                                   title: query.title,
+                                   mood: "insensitive"
                               } : {},
 
                          //content filtering
@@ -163,7 +167,8 @@ const getAllPostsDB = async (query : IPostQuery) => {
                skip: skip,
 
                orderBy: {
-                    // sorting by title
+                    // sorting by : sortOrder
+                    [sortBy] : sortOrder
                },
 
                include: {

@@ -1,6 +1,6 @@
 import { CommentStatus, PostStatus } from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma"
-import { ICreatePostPayload, IUpdatePostPayload } from "./post.interface"
+import { ICreatePostPayload,  IPostQuery,  IUpdatePostPayload } from "./post.interface"
 
 
 
@@ -15,7 +15,13 @@ const createPostDB = async (payload: ICreatePostPayload, userId: string) => {
 }
 
 
-const getAllPostsDB = async () => {
+
+const getAllPostsDB = async (query : IPostQuery) => {
+
+     const limit = query.limit ? Number(query.limit) : 10;
+     const page = query.page ? Number(query.page) : 1;
+     const skip = (page - 1) * limit;
+
      const posts = await prisma.post.findMany(
           {
                //* filtering / Exact match without AND Oprator
@@ -110,10 +116,54 @@ const getAllPostsDB = async () => {
                // skip: 3,
 
                // * Sorting / OrderBy
+               // orderBy: {
+               //      createdAt: "desc",
+               //      title: "asc",
+               //      content: "desc"
+               // },
+
+
+               where: {
+                    AND: [
+                         //
+                         query.searchTerm ? {
+                                   OR: [
+                                        {
+                                             title : {
+                                                  contains: query.searchTerm,
+                                                  mode: "insensitive"
+                                             },
+                                             
+                                        },
+                                        {
+                                             content : {
+                                                  contains: query.searchTerm,
+                                                  mode: "insensitive"
+                                             }
+                                        }
+                                   ]
+                         } : {},
+
+
+                         //title filtering
+                         query.title ? {
+                                   title: query.title
+                              } : {},
+
+                         //content filtering
+                         query.content ? {
+                                   content: query.content,
+                                   mood: "insensitive"
+                              } : {},
+                    ]
+               },
+
+
+               take: limit,
+               skip: skip,
+
                orderBy: {
-                    createdAt: "desc",
-                    title: "asc",
-                    content: "desc"
+                    // sorting by title
                },
 
                include: {

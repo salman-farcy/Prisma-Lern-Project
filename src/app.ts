@@ -9,6 +9,8 @@ import { postRouter } from "./modules/post/post.router";
 import { commentRouter } from "./modules/comment/comment.router";
 import { notFound } from "./middlewares/notfound";
 import { globalErrorHandler } from './middlewares/globalErrorHandller';
+import { subscriptionRoute } from './modules/subscription/subscription.route';
+
 
 const app: Application = express();
 app.use(cors({
@@ -28,6 +30,7 @@ app.use("/api/user", userRouter)
 app.use("/api/user", authRouter)
 app.use("/api/posts", postRouter)
 app.use("/api/comments", commentRouter)
+app.use("/api/subscription", subscriptionRoute)
 
 // app.use((req: Request, res: Response) => {
 //      res.status(404).json({
